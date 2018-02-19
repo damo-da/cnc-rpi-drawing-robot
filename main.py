@@ -22,25 +22,34 @@ def get_paths(file_path, debug=False):
                     points.append(B)
                 res_paths.append(points)
             elif isinstance(p, svgpathtools.Line):
-                # print(p.start, p.end)
                 res_paths.append((p.start, p.end))
             else:
                 print('something else found: ', type(p))
                 raise Exception("Oh, oh.")
+    res_paths = [list(map(lambda c: (c.real, c.imag), path)) for path in res_paths]
 
-    return res_paths
+    chainable = sum(res_paths, [])
+
+    max_x = max(chainable, key=lambda c: c[0])[0]
+    min_x = min(chainable, key=lambda c: c[0])[0]
+    max_y = max(chainable, key=lambda c: c[1])[1]
+    min_y = min(chainable, key=lambda c: c[1])[1]
+
+    return [
+        list(map(lambda r: ((r[0] - min_x)/ (max_x - min_x), (r[1]-min_y) / (max_y - min_y)), r)) for r in res_paths
+    ]
 
 
 def show_paths(res_paths):
-    print(res_paths)
     for path in res_paths:
-        xs = list(map(lambda c: c.real, path))
-        ys = list(map(lambda c: c.imag, path))
-        # print(xs)
+        xs = list(map(lambda c: c[0], path))
+        ys = list(map(lambda c: c[1], path))
+
         plt.plot(xs, ys, color='black')
+
     plt.show()
 
 
 if __name__ == '__main__':
-    paths = get_paths('./image1.svg')
+    paths = get_paths('./image1.svg', debug=True)
     show_paths(paths)
