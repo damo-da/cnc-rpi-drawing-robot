@@ -4,6 +4,10 @@ import svgpathtools
 import numpy as np
 from matplotlib import pyplot as plt
 
+PAGE_HEIGHT = 32000
+PAGE_WIDTH = 16000
+OFFSET_WIDTH = 3200
+OFFSET_HEIGHT = 3200
 
 def get_paths(file_path, debug=False):
     _paths, attributes = svgpathtools.svg2paths(file_path)
@@ -24,7 +28,7 @@ def get_paths(file_path, debug=False):
             elif isinstance(p, svgpathtools.Line):
                 res_paths.append((p.start, p.end))
             else:
-                print('something else found: ', type(p))
+                print('unsupported SVG type found: ', type(p))
                 raise Exception("Oh, oh.")
     res_paths = [list(map(lambda c: (c.real, c.imag), path)) for path in res_paths]
 
@@ -50,6 +54,15 @@ def show_paths(res_paths):
     plt.show()
 
 
-if __name__ == '__main__':
-    paths = get_paths('./image1.svg', debug=True)
+def main():
+    # paths = get_paths('./image1.svg', debug=True)
+    paths = get_paths('./outputtest.svg', debug=True)
+    paths = map(lambda path: [(OFFSET_WIDTH + int(x * PAGE_WIDTH), OFFSET_HEIGHT + int(y * PAGE_HEIGHT)) for x,y in path], paths)
+    paths = list(paths)
+    print(paths)
     show_paths(paths)
+
+
+
+if __name__ == '__main__':
+    main()
