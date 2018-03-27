@@ -8,6 +8,9 @@ PAGE_HEIGHT = 32000
 PAGE_WIDTH = 16000
 OFFSET_WIDTH = 3200
 OFFSET_HEIGHT = 3200
+DEFAULT_X, DEFAULT_Y = 0, 0
+
+
 
 def get_paths(file_path, debug=False):
     _paths, attributes = svgpathtools.svg2paths(file_path)
@@ -55,13 +58,42 @@ def show_paths(res_paths):
 
 
 def main():
-    # paths = get_paths('./image1.svg', debug=True)
-    paths = get_paths('./outputtest.svg', debug=True)
-    paths = map(lambda path: [(OFFSET_WIDTH + int(x * PAGE_WIDTH), OFFSET_HEIGHT + int(y * PAGE_HEIGHT)) for x,y in path], paths)
-    paths = list(paths)
-    print(paths)
-    show_paths(paths)
+    actions = []
+    actions.append({'type': 'MOVE', 'distance': (OFFSET_WIDTH, OFFSET_HEIGHT)})
 
+    pos = DEFAULT_X, DEFAULT_Y
+
+    # paths = get_paths('./image1.svg', debug=True)
+    ret = {}
+
+    paths = get_paths('./outputtest.svg')
+    paths = map(lambda path: [(OFFSET_WIDTH + int(x * PAGE_WIDTH), OFFSET_HEIGHT + int(y * PAGE_HEIGHT)) for x,y in path], paths)
+    for path in paths:
+        if len(path) == 0:
+            continue
+        else:
+
+            for i, point in enumerate(path):
+                pos = (point[0] - pos[0], point[1] - pos[1])
+
+                actions.append({'type': 'MOVE', 'distance': pos})
+
+                if i == 0 and i == len(path) - 1:
+                    continue
+
+                if i == 0:
+                    actions.append({'type': 'DOWN'})
+                if i == len(path)-1:
+                    actions.append({'type': 'UP'})
+
+
+    # print(this_ret)
+    # print(list(paths))
+    # show_paths(paths)
+
+    # return actions
+
+    print('actions: ', actions)
 
 
 if __name__ == '__main__':
