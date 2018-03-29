@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 PAGE_HEIGHT = 32000
-PAGE_WIDTH = 16000
+PAGE_WIDTH = 32000
 OFFSET_WIDTH = 3200
 OFFSET_HEIGHT = 3200
 DEFAULT_X, DEFAULT_Y = 0, 0
@@ -15,7 +15,8 @@ DEFAULT_X, DEFAULT_Y = 0, 0
 def get_paths(file_path, debug=False):
     _paths, attributes = svgpathtools.svg2paths(file_path)
     if debug:
-        print(attributes)
+        print(_paths)
+        # print(attributes)
 
     res_paths = []
 
@@ -59,24 +60,28 @@ def show_paths(res_paths):
 
 def main():
     actions = []
-    actions.append({'type': 'MOVE', 'distance': (OFFSET_WIDTH, OFFSET_HEIGHT)})
+    # actions.append({'type': 'MOVE', 'distance': (OFFSET_WIDTH, OFFSET_HEIGHT)})
 
     pos = DEFAULT_X, DEFAULT_Y
 
     # paths = get_paths('./image1.svg', debug=True)
     ret = {}
 
-    paths = get_paths('./outputtest.svg')
-    paths = map(lambda path: [(OFFSET_WIDTH + int(x * PAGE_WIDTH), OFFSET_HEIGHT + int(y * PAGE_HEIGHT)) for x,y in path], paths)
+    paths = get_paths('./rectangle.svg')
+    paths = list(map(lambda path: [(int(x * PAGE_WIDTH), int(y * PAGE_HEIGHT)) for x,y in path], paths))
     for path in paths:
         if len(path) == 0:
             continue
         else:
+            # print('for path={}, pos={}'.format(path, pos) )
 
             for i, point in enumerate(path):
-                pos = (point[0] - pos[0], point[1] - pos[1])
+                # print('for point={}, pos={}'.format(point, pos) )
 
-                actions.append({'type': 'MOVE', 'distance': pos})
+                distance = (point[0] - pos[0], point[1] - pos[1])
+                pos = pos[0] + distance[0], pos[1] + distance[1]
+
+                actions.append({'type': 'MOVE', 'distance': distance})
 
                 if i == 0 and i == len(path) - 1:
                     continue
@@ -85,15 +90,16 @@ def main():
                     actions.append({'type': 'DOWN'})
                 if i == len(path)-1:
                     actions.append({'type': 'UP'})
+                # print("new pos = ", pos)
 
 
     # print(this_ret)
     # print(list(paths))
-    # show_paths(paths)
+    show_paths(paths)
 
     # return actions
 
-    print('actions: ', actions)
+    print('actions: \n', '\n'.join(str(x) for x in actions))
 
 
 if __name__ == '__main__':
